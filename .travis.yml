@@ -10,3 +10,5 @@ before_script:
   - ansible-lint .
 script:
   - molecule test -- --skip-tags "register-agent"
+notifications:
+  webhooks: https://galaxy.ansible.com/api/v1/notifications/
