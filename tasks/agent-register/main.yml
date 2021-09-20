@@ -1,0 +1,32 @@
+---
+
+# Checks if the agent is already registered.
+- name: Checking if the agent is already registered (Unix)
+  stat:
+    path: "{{ aws_ssm_activation_path }}"
+  register: stat_result_linux
+  become: true
+  when: ansible_os_family != 'Windows'
+
+# Checks if the agent is already registered.
+- name: Checking if the agent is already registered (Windows)
+  win_stat:
+    path: "{{ aws_ssm_activation_path }}"
+  register: stat_result_windows
+  when: ansible_os_family == 'Windows'
+
+# Setting whether the agent is already registered.
+- name: Set whether the agent is already registered
+  set_fact:
+    stat_result: "{{ stat_result_windows.stat | default(stat_result_linux.stat) }}"
+
+# If auto-activation is enabled, we create a new activation
+# using the AWS CLI.
+- name: Create a new activation
+  include_tasks: create-activation.yml
+  when: not stat_result.exists and auto_activation == "enabled"
+
+# Register the instance.
+- name: Register the instance
+  include_tasks: agent-registration.yml
+  when: not stat_result.exists

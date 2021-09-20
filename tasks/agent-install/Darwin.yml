@@ -1,0 +1,32 @@
+---
+
+# Downloads the AWS SSM Agent.
+- name: Download the AWS SSM Agent (Darwin)
+  get_url:
+    url: https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/darwin_{{ arch_name }}/amazon-ssm-agent.pkg
+    dest: "{{ amazon_ssm_agent_temp_location }}"
+    mode: 0755
+
+# Installs the AWS SSM Agent.
+- name: Install the AWS SSM Agent (Darwin)
+  command: installer -pkg {{ amazon_ssm_agent_temp_location }} -target /
+  become: true
+  args:
+    creates: "{{ aws_ssm_agent_cli_name }}"
+
+# Create the AWS SSM Agent seelog.xml file.
+- name: Create the AWS SSM Agent seelog.xml file (Darwin)
+  copy:
+    content: "{{ lookup('file', 'seelog.xml') }}"
+    dest: /opt/aws/ssm/seelog.xml
+    mode: 0644
+  become: true
+
+# Registers the AWS SSM Agent as a service and starts it.
+- name: Register the AWS SSM Agent as a service (Darwin)
+  launchd:
+    name: "{{ aws_ssm_agent_service_name }}"
+    state: started
+    enabled: true
+  tags:
+    - register-service

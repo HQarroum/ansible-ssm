@@ -1,0 +1,4 @@
+---
+
+# Install manually.
+- include_tasks: "Manual.yml"

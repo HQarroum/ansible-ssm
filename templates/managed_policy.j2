@@ -1,0 +1,17 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": "s3:GetObject",
+      "Resource": [
+        "arn:aws:s3:::aws-ssm-{{ aws_current_region.stdout }}/*",
+        "arn:aws:s3:::aws-windows-downloads-{{ aws_current_region.stdout }}/*",
+        "arn:aws:s3:::amazon-ssm-{{ aws_current_region.stdout }}/*",
+        "arn:aws:s3:::amazon-ssm-packages-{{ aws_current_region.stdout }}/*",
+        "arn:aws:s3:::{{ aws_current_region.stdout }}-birdwatcher-prod/*",
+        "arn:aws:s3:::patch-baseline-snapshot-{{ aws_current_region.stdout }}/*"
+      ]
+    }
+  ]
+}

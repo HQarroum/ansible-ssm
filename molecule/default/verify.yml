@@ -1,0 +1,36 @@
+---
+
+- name: Verifying the role
+  hosts: all
+  tasks:
+
+    # Checks whether Snap is available.
+    - name: Check whether Snap is available (Debian)
+      stat:
+        path: /usr/bin/snap
+      register: snap_available
+
+    # Defining the default AWS SSM service name.
+    - name: Define default AWS SSM service
+      set_fact:
+        amazon_ssm_service: "amazon-ssm-agent"
+
+    # Defining the AWS SSM service name when running on snap systems.
+    - name: Define AWS SSM service for snap systems
+      set_fact:
+        amazon_ssm_service: "snap.amazon-ssm-agent.amazon-ssm-agent.service"
+      when: snap_available.stat.exists
+
+    # Verifying whether the AWS SSM agent service is running.
+    - name: AWS SSM agent service should be running
+      service:
+        name: "{{ amazon_ssm_service }}"
+        state: started
+        enabled: true
+      register: ssm_service_result
+
+    # Verify whether the AWS SSM agent service was running.
+    - name: Verify commands outputs
+      assert:
+        that:
+          - not ssm_service_result.changed

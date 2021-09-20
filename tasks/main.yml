@@ -1,0 +1,17 @@
+---
+
+# Verifying whether the system package manager is defined.
+- name: The system package manager is not defined
+  set_fact:
+    package_manager_available: false
+  when: ansible_pkg_mgr is not defined and ansible_os_family != 'Windows'
+
+# Installs the AWS SSM Agent software.
+- include: agent-install/main.yml
+  tags:
+    - install-agent
+
+# Registers the SSM Agent on AWS SSM.
+- include: agent-register/main.yml
+  tags:
+    - register-agent

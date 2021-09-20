@@ -1,0 +1,17 @@
+---
+
+# Map between the Ansible architecture name and the
+# architecture name associated with the AWS SSM package.
+architecture_map:
+  x86_64:
+    value: amd64
+  amd64:
+    value: amd64
+  arm64:
+    value: arm64
+  aarch64:
+    value: arm64
+  i386:
+    value: "386"
+  i686:
+    value: "386"

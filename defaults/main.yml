@@ -1,0 +1,12 @@
+---
+
+# AWS SSM Agent internal variables.
+default_instance_name: "{{ ansible_hostname }}"
+aws_ssm_activation_path: /var/lib/amazon/ssm/registration
+auto_activation: disabled
+package_manager_available: true
+
+# AWS SSM Agent customizable variables.
+aws_ssm_default_iam_managed_policy: AnsibleSSMManagedPolicy
+aws_ssm_default_iam_role_name: AnsibleSSMInstanceRole
+aws_ssm_agent_install_directory: /

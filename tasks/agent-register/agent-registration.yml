@@ -1,0 +1,43 @@
+---
+
+# Verifying whether the activation code and activation id have been provided.
+- name: Verify whether the activation code and activation id have been provided.
+  fail:
+    msg: >
+      The SSM activation code and SSM activation id are required and must be specified
+      as Ansible variables (aws_ssm_activation_code and aws_ssm_activation_id).
+      If you would like Ansible to automatically create an activation for your instance,
+      set the auto_activation Ansible variable to "enabled".
+  when: "aws_ssm_activation_code is not defined or aws_ssm_activation_id is not defined"
+
+# Verifying whether the SSM region has been provided.
+- name: Verify whether the SSM region has been provided.
+  fail:
+    msg: >
+      The SSM region in which the registration should happen is required and must be specified
+      as the Ansible variable aws_ssm_ec2_region.
+  when: "aws_ssm_ec2_region is not defined"
+
+# Performs the instance registration.
+- name: Perform the instance registration
+  command: >
+    {{ aws_ssm_agent_cli_name }} -y
+      -register
+      -clear
+      -code '{{ aws_ssm_activation_code }}'
+      -id '{{ aws_ssm_activation_id }}'
+      -region '{{ aws_ssm_ec2_region }}'
+  args:
+    chdir: "{{ aws_ssm_agent_install_directory }}/usr/bin"
+  notify: restart
+  become: true
+  when: ansible_os_family != 'Windows'
+
+# Performs the instance registration.
+- name: Perform the instance registration
+  win_command: >
+    {{ aws_ssm_agent_cli_name }} -y -register -clear -code {{ aws_ssm_activation_code }} -id {{ aws_ssm_activation_id }} -region {{ aws_ssm_ec2_region }}
+  args:
+    chdir: "{{ aws_ssm_agent_install_directory }}"
+  notify: restart
+  when: ansible_os_family == 'Windows'

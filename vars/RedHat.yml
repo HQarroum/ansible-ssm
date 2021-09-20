@@ -1,0 +1,26 @@
+---
+
+# Map between the Ansible architecture name and the
+# architecture name associated with the AWS SSM package.
+architecture_map:
+  x86_64:
+    value: amd64
+  amd64:
+    value: amd64
+  armv6l:
+    value: arm
+  armv7l:
+    value: arm
+  arm64:
+    value: arm
+  aarch64:
+    value: arm
+  i386:
+    value: "386"
+  i686:
+    value: "386"
+
+# AWS SSM Agent internal variables.
+aws_ssm_agent_service_name: amazon-ssm-agent
+aws_ssm_activation_path: /var/lib/amazon/ssm/registration
+aws_ssm_agent_cli_name: amazon-ssm-agent

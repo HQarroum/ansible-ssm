@@ -1,0 +1,51 @@
+---
+
+- name: Preparing the container
+  hosts: all
+  gather_facts: false
+  tasks:
+
+    # Installs Python if it is not present.
+    - name: Installs Python3
+      raw: >-
+        test -e /usr/bin/python3 || \
+            (test -e /usr/bin/yum && yum -y update && yum -y install python3) || \
+            (test -e /usr/bin/apt && apt -y update && apt install -y python3) || \
+            (pacman -Sy --noconfirm python3)
+      tags: always
+      changed_when: false
+      ignore_errors: true
+
+    # Installs sudo if it is not present.
+    - name: Installs sudo
+      raw: >-
+        test -e /usr/bin/sudo || \
+            (test -e /usr/bin/yum && yum -y update && yum -y install sudo) || \
+            (test -e /usr/bin/apt && apt -y update && apt install -y sudo) || \
+            (pacman -Sy --noconfirm sudo)
+      tags: always
+      changed_when: false
+      ignore_errors: true
+
+    # Gathers fact about the host.
+    - name: Gathering facts about the host
+      setup:
+      tags: always
+
+    # Installs certs.
+    - name: Installs certs
+      raw: >-
+        sudo apt-get -y install ca-certificates
+      tags: always
+      changed_when: false
+      when:
+        - ansible_os_family == 'Debian'
+
+    # Installs certs.
+    - name: Installs systemd
+      raw: >-
+        sudo apt-get -y install systemd
+      tags: always
+      changed_when: false
+      when:
+        - ansible_os_family == 'Debian'

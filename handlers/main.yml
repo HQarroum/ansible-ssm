@@ -1,0 +1,32 @@
+---
+
+# Reloads the Systemd daemon.
+- name: Reload the Systemd daemon
+  systemd:
+    daemon_reload: true
+  listen: reload
+
+# Restarts SSM Agent (Windows).
+- name: Restart SSM Agent (Windows)
+  win_service:
+    name: "{{ aws_ssm_agent_service_name }}"
+    state: restarted
+  listen: restart
+  when: ansible_os_family == 'Windows'
+
+# Restarts SSM Agent (Darwin).
+- name: Restart SSM Agent (Darwin)
+  launchd:
+    name: "{{ aws_ssm_agent_service_name }}"
+    state: restarted
+  listen: restart
+  when: ansible_system == "Darwin"
+
+# Restarts SSM Agent (Linux).
+- name: Restart SSM Agent (Linux)
+  service:
+    name: "{{ aws_ssm_agent_service_name }}"
+    state: restarted
+  listen: restart
+  become: true
+  when: ansible_system == "Linux"

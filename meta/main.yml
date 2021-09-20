@@ -1,0 +1,46 @@
+---
+
+galaxy_info:
+  role_name: aws_ssm_agent
+  author: hqarroum
+  description: >
+    An ansible role to provision physical and virtual hosts with the AWS SSM agent.
+  license: license (BSD, MIT)
+  min_ansible_version: 2.8
+  platforms:
+    - name: EL
+      versions:
+        - 8
+        - 7
+        - 6
+    - name: Amazon
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: Ubuntu
+      versions:
+        - all
+    - name: opensuse
+      versions:
+        - 15.0
+        - 15.1
+    - name: Windows
+      versions:
+        - 2016
+        - 2019
+    - name: MacOSX
+      versions:
+        - all
+
+  galaxy_tags:
+    - system
+    - manager
+    - aws
+    - ssm
+
+dependencies: []

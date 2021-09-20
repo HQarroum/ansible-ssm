@@ -1,0 +1,23 @@
+---
+
+# Map between the Ansible architecture name and the
+# architecture name associated with the AWS SSM package.
+architecture_map:
+  x86_64:
+    value: amd64
+  amd64:
+    value: amd64
+  '64-bit':
+    value: amd64
+
+# Installation variables.
+temp_directory: 'c:\windows\temp\'
+aws_ssm_download_directory: 'c:\windows\temp\AmazonSSMAgentSetup.exe'
+aws_ssm_installer_arguments: '/install /quiet /norestart'
+aws_ssm_path: 'C:\Program Files\Amazon\SSM\amazon-ssm-agent.exe'
+
+# Variable overrides.
+aws_ssm_activation_path: 'C:\ProgramData\Amazon\SSM\InstanceData\registration'
+aws_ssm_agent_cli_name: amazon-ssm-agent.exe
+aws_ssm_agent_service_name: AmazonSSMAgent
+aws_ssm_agent_install_directory: 'C:\Program Files\Amazon\SSM\'

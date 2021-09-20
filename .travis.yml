@@ -1,0 +1,12 @@
+---
+
+language: python
+python:
+  - '3.9'
+install:
+  - pip install -r requirements.txt
+before_script:
+  - yamllint .
+  - ansible-lint .
+script:
+  - molecule test -- --skip-tags "register-agent"

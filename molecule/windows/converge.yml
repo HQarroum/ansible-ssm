@@ -1,0 +1,11 @@
+---
+
+- name: Converging to the desired state
+  hosts: all
+  become: true
+  tasks:
+
+    # Include the Ansible SSM role.
+    - name: Include the Ansible SSM role
+      include_role:
+        name: install-ssm-agent

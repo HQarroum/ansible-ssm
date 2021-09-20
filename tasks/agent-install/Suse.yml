@@ -1,0 +1,19 @@
+---
+
+# Installs the AWS SSM Agent.
+- name: Install the AWS SSM Agent (Suse)
+  zypper:
+    name: https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/linux_{{ arch_name }}/amazon-ssm-agent.rpm
+    disable_gpg_check: true
+    state: present
+  become: true
+
+# Registers the AWS SSM Agent as a service and starts it.
+- name: Register the AWS SSM Agent as a service (Suse)
+  service:
+    name: "{{ aws_ssm_agent_service_name }}"
+    enabled: true
+    state: started
+  become: true
+  tags:
+    - register-service

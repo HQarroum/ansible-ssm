@@ -1,0 +1,85 @@
+---
+
+# Verifies that the AWS CLI is installed and configured,
+# and retrieves the current AWS region.
+- name: Get AWS CLI current region
+  command: >
+    aws configure get region
+  become: false
+  delegate_to: localhost
+  register: aws_current_region
+  changed_when: false
+  when: aws_ssm_ec2_region is not defined
+
+# Setting the AWS region as fact.
+- name: Set the current AWS region
+  set_fact:
+    aws_ssm_ec2_region: "{{ aws_current_region.stdout }}"
+  when: aws_ssm_ec2_region is not defined
+
+# Creating a new IAM Managed policy to be attached to
+# the IAM Role associated with managed instances.
+- name: Create a new IAM Managed Policy for managed instances
+  iam_managed_policy:
+    policy_name: "{{ aws_ssm_default_iam_managed_policy }}"
+    policy_description: An IAM managed policy to be attached to the IAM Role associated with AWS SSM managed instances.
+    policy: "{{ lookup('template', 'managed_policy.j2') }}"
+    state: present
+  become: false
+  delegate_to: localhost
+  register: iam_managed_policy
+  when: aws_ssm_iam_role is not defined
+
+# Creating a new IAM Role for managed instances.
+- name: Create a new IAM Role for managed instances
+  iam_role:
+    name: "{{ aws_ssm_default_iam_role_name }}"
+    assume_role_policy_document: "{{ lookup('file', 'assume-role-policy.json') }}"
+    description: Default IAM Role associated with AWS SSM managed instances.
+    purge_policies: true
+    managed_policy:
+      - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+      - "{{ iam_managed_policy.policy.arn }}"
+  become: false
+  delegate_to: localhost
+  register: role
+  when: aws_ssm_iam_role is not defined
+
+# Waiting for the role to propagate.
+- name: Waiting for the role to propagate
+  pause:
+    seconds: 10
+  when: role.changed
+
+# Setting the created AWS role for Ansible managed instances.
+- name: Set the created AWS role for Ansible managed instances
+  set_fact:
+    aws_ssm_iam_role: "{{ role.iam_role.role_name }}"
+  when: aws_ssm_iam_role is not defined
+
+# Setting the default instance tags as a fact.
+- name: Set the default instance tags as a fact
+  set_fact:
+    instance_tags: "Key=provisioning-tool,Value=ansible-ssm"
+  when: instance_tags is not defined
+
+# Generates a new activation code.
+- name: Generating a new activation code
+  command: >
+    aws ssm create-activation
+      --description "A new activation created by 'ansible-ssm' for '{{ ansible_hostname }}'."
+      --default-instance-name "{{ default_instance_name }}"
+      --iam-role "{{ aws_ssm_iam_role }}"
+      --registration-limit 1
+      --tags {{ instance_tags }}
+  become: false
+  delegate_to: localhost
+  register: aws_activation_parameters
+  when: (aws_ssm_activation_code is not defined or aws_ssm_activation_id is not defined)
+
+# Setting the AWS activation parameters as fact.
+- name: Sets the AWS activation parameters as fact
+  set_fact:
+    aws_ssm_activation_code: "{{ aws_activation_parameters.stdout | from_json | json_query('ActivationCode') }}"
+    aws_ssm_activation_id: "{{ aws_activation_parameters.stdout | from_json | json_query('ActivationId') }}"
+  when: (aws_ssm_activation_code is not defined or aws_ssm_activation_id is not defined)

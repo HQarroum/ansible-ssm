@@ -1,0 +1,6 @@
+---
+
+- name: Converging to the desired state
+  hosts: all
+  roles:
+    - { role: "{{ playbook_dir }}/../../" }

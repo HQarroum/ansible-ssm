@@ -1,0 +1,17 @@
+---
+- name: Verify
+  hosts: all
+  become: true
+  tasks:
+    - name: Windows | Amazon ssm agent service should be started and enabled
+      win_service:
+        name: AmazonSSMAgent
+        start_mode: auto
+        state: started
+      register: ssm_service_result
+
+    - name: Windows | Verify commands outputs
+      assert:
+        that:
+          - not ssm_service_result.changed
+        success_msg: "All tests passed"

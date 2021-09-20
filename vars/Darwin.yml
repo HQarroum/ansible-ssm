@@ -1,0 +1,15 @@
+---
+
+# Map between the Ansible architecture name and the
+# architecture name associated with the AWS SSM package.
+architecture_map:
+  x86_64:
+    value: amd64
+  amd64:
+    value: amd64
+
+# AWS SSM Agent internal variables.
+aws_ssm_agent_cli_name: /opt/aws/ssm/bin/amazon-ssm-agent
+aws_ssm_activation_path: /opt/aws/ssm/data/registration
+amazon_ssm_agent_temp_location: /tmp/amazon-ssm-agent.pkg
+aws_ssm_agent_service_name: com.amazon.aws.ssm

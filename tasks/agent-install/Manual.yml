@@ -1,0 +1,137 @@
+---
+
+# Checks if the AWS SSM Agent already exists on the local file-system.
+- name: Checking if the AWS SSM Agent has already been downloaded and uncompressed (Manual)
+  stat:
+    path: "{{ aws_ssm_agent_install_directory }}/usr/bin/amazon-ssm-agent"
+  register: stat_ssm_agent
+  become: true
+
+- block:
+
+    # Creating a remote temporary artifact directory.
+    - name: Create a remote temporary artifact directory (Manual)
+      tempfile:
+        state: directory
+        suffix: artifacts
+      register: remote_temp_directory
+      become: true
+
+    # Creating a local temporary artifact directory.
+    - name: Create a local temporary artifact directory (Manual)
+      tempfile:
+        state: directory
+        suffix: artifacts
+      register: aws_ssm_local_cache
+      become: false
+      delegate_to: localhost
+
+    # Downloading the Amazon SSM Agent on the local host.
+    - name: Download the Amazon SSM Agent on the local host (Manual)
+      get_url:
+        url: "https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/debian_{{ arch_name }}/amazon-ssm-agent.deb"
+        dest: "{{ aws_ssm_local_cache.path }}/amazon-ssm-agent_{{ arch_name }}.deb"
+      delegate_to: localhost
+      register: download_ssm_agent
+      retries: 5
+      delay: 5
+      until: not download_ssm_agent.failed
+
+    # Updating the .deb archive table using `ar`.
+    - name: Update the .deb archive table using `ar` (Manual)
+      command: >
+        ar -s {{ download_ssm_agent.dest }}
+      args:
+        chdir: "{{ aws_ssm_local_cache.path }}"
+      delegate_to: localhost
+
+    # Extracting the .deb archive using `ar`.
+    - name: Extract the .deb archive using `ar` (Manual)
+      command: >
+        ar -x {{ download_ssm_agent.dest }}
+      args:
+        chdir: "{{ aws_ssm_local_cache.path }}"
+      delegate_to: localhost
+
+    # Extracting the compressed TAR archive containing the package data.
+    - name: Extract the compressed TAR archive containing the package data
+      command: >
+        gunzip data.tar.gz
+      args:
+        chdir: "{{ aws_ssm_local_cache.path }}"
+      delegate_to: localhost
+      register: gunzip
+      failed_when: "gunzip.rc == 1"
+
+    # Copying the data archive on the host.
+    - name: Copy the data archive on the host (Manual)
+      copy:
+        src: "{{ aws_ssm_local_cache.path }}/data.tar"
+        dest: "{{ remote_temp_directory.path }}"
+        mode: 0644
+      become: true
+
+    # Creating the installation directory if it does not exist.
+    - name: Create the installation directory if it does not exist (Manual)
+      file:
+        path: "{{ aws_ssm_agent_install_directory }}"
+        state: directory
+        mode: 0644
+      become: true
+
+    # Extracting the uncompressed TAR archive.
+    - name: Extract the uncompressed TAR archive (Manual)
+      command: >
+        tar -xvf data.tar -C {{ aws_ssm_agent_install_directory }}
+      args:
+        chdir: "{{ remote_temp_directory.path }}"
+      become: true
+
+    # Patching the `amazon-ssm-agent.service` file with the correct path.
+    - name: Patch the `amazon-ssm-agent.service` file with the correct path (Manual)
+      replace:
+        path: "{{ aws_ssm_agent_install_directory }}/lib/systemd/system/amazon-ssm-agent.service"
+        regexp: "/usr/bin/"
+        replace: "{{ aws_ssm_agent_install_directory }}/usr/bin/"
+      become: true
+      when: aws_ssm_agent_install_directory != "/"
+      tags:
+        - register-service
+
+    # Copying the service file in the systemd directory.
+    - name: Copy the service file in the systemd directory (Manual)
+      copy:
+        src: "{{ aws_ssm_agent_install_directory }}/lib/systemd/system/amazon-ssm-agent.service"
+        dest: "/etc/systemd/system/"
+        remote_src: true
+        mode: 0644
+      become: true
+      tags:
+        - register-service
+
+    # Create the AWS SSM Agent configuration.
+    - name: Create the AWS SSM Agent configuration (Manual)
+      copy:
+        content: "{{ lookup('file', 'amazon-ssm-agent.json') }}"
+        dest: "{{ aws_ssm_agent_install_directory }}/etc/amazon/ssm/amazon-ssm-agent.json"
+        mode: 0644
+      become: true
+
+    # Create the AWS SSM Agent seelog.xml file.
+    - name: Create the AWS SSM Agent seelog.xml file (Manual)
+      copy:
+        content: "{{ lookup('file', 'seelog.xml') }}"
+        dest: "{{ aws_ssm_agent_install_directory }}/etc/amazon/ssm/seelog.xml"
+        mode: 0644
+      become: true
+  when: not stat_ssm_agent.stat.exists
+
+# Registers the AWS SSM Agent as a service.
+- name: Register AWS SSM Agent as a service (Manual)
+  service:
+    name: "{{ aws_ssm_agent_service_name }}"
+    enabled: true
+    state: started
+  become: true
+  tags:
+    - register-service
