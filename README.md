@@ -121,23 +121,6 @@ ansible-playbook playbook.yml \
 
 > ⚠️ Only specify this variable if you are deploying on hosts that do not have any supported package manager available.
 
-### Specify AWS variables
-
-Since this playbook can use the `aws-cli` to create new roles and activations, you can pass or set AWS environment variables to the `ansible-playbook` command to customize for instance on which AWS region you would like to create your deployments, or which AWS account profile you want to use. Below is an example showing how to explicitly create the deployment in the `eu-west-1` region.
-
-<details><summary>See the example</summary>
-<p>
-
-```bash
-AWS_DEFAULT_REGION=eu-west-1 ansible-playbook playbook.yml \
-  -i <path-to-your-inventory>
-```
-
-> You can specify all of the [environment variables supported by the AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html) when executing the `ansible-playbook` command.
-
-</p>
-</details>
-
 ## 📗 Playbook Variables
 
 As seen in previous sections, this playbook exposes different variables which you can pass to the `ansible-playbook` command when creating a deployment to customize it, or specify them in your Ansible inventory file on a host-by-host basis. Below are descriptions of all the supported variables by this playbook.
