@@ -36,10 +36,9 @@ ansible-galaxy install hqarroum.aws_ssm_agent
 ## 🔖 Features
 
 - Provisions the AWS SSM Agent on your physical and virtual hosts.
-- Support for automatic creation of an IAM role for your managed instances if you do not provide one.
 - Works on different flavors of Linux and Windows.
 - Supports Linux distributions without package management.
-- Support for auto-registration of provisioned instances using the [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html) if no activation credentials are provided.
+- Support for [auto-activation](#enable-auto-activation) of provisioned instances using the [AWS CLI](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html) and auto-creation of an IAM role for the instances.
 
 ## 🎒 Pre-requisites
 
@@ -48,7 +47,7 @@ ansible-galaxy install hqarroum.aws_ssm_agent
 
 ## 🔰 Description
 
-This Ansible playbook provides developers and system engineers with the ability to deploy at scale the AWS SSM Agent on remote Linux and Windows hosts across different architectures. The AWS SSM agent will be registered as a service on the target operating system.
+This Ansible playbook provides developers and system engineers with the ability to deploy at scale the AWS SSM Agent on remote Linux, Mac and Windows hosts across different architectures. The AWS SSM agent will be registered as a service on the target operating system.
 
 When dealing with managed instances, AWS SSM requires you to [create an activation](https://docs.aws.amazon.com/systems-manager/latest/userguide/activations.html) for one or multiple hosts that you can pass to this playbook using Ansible variables.
 
@@ -84,27 +83,26 @@ If you want to specify a different activation code and identifier to each of you
 
 ### Enable auto-activation
 
-You can delegate the creation of the activation to the playbook by enabling auto-activation (disabled by default) by setting the `enable_auto_activation` variable to `true`. See the [Playbook Variables](#-playbook-variables) section for more information.
+You can delegate the creation of the activation to the playbook by enabling auto-activation (disabled by default) by setting the `auto_activation` variable to `enabled`. See the [Playbook Variables](#-playbook-variables) section for more information.
 
-> This example will require the AWS CLI to be installed on your deployment machine provisioned with the appropriate IAM roles to create an activation code and an IAM Instance Role for your host(s) automatically. The AWS region will be inferred automatically from the AWS CLI, or from the `AWS_DEFAULT_REGION` environment variable.
+> This example will require the AWS CLI to be installed on your deployment machine provisioned with the appropriate IAM roles to create an activation code and an IAM Instance Role for your host(s) automatically. The AWS region will be inferred automatically from the AWS CLI.
 
 ```bash
 ansible-playbook playbook.yml \
   -i <path-to-your-inventory> \
-  --extra-vars "enable_auto_activation=true"
+  --extra-vars "auto_activation=enabled"
 ```
 
 ### Associate tags to your instances
 
-If you do **not** specify an activation identifier and code for your instances, you must set the `enable_auto_activation` variable to `true` which will cause this role to automatically create them using the AWS CLI on your deployment machine for each provisioned instance. While doing so, it is possible to bind tags to the created activations such that these tags gets automatically associated with your instance in AWS SSM.
+If you do **not** specify an activation identifier and code for your instances, you must set the `auto_activation` variable to `enabled` which will cause this role to automatically create them using the AWS CLI on your deployment machine for each provisioned instance. While doing so, it is possible to bind tags to the created activations such that these tags gets automatically associated with your instance in AWS SSM.
 
 Below is an example of how to bind tags to your activation identifier and activation code.
 
 ```bash
 ansible-playbook playbook.yml \
   -i <path-to-your-inventory> \
-  --extra-vars "enable_auto_activation=true" \
-  --extra-vars '{"instance_tags":[{"Key":"foo", "Value":"bar"},{"Key":"bar", "Value":"baz"}]}'
+  --extra-vars "auto_activation=enabled instance_tags\"Key=foo,Value=bar\""
 ```
 
 ### Installing the AWS SSM Agent in a specific path
@@ -116,7 +114,7 @@ The default root path in which the un-archiving process target will be the root 
 ```bash
 ansible-playbook playbook.yml \
   -i <path-to-your-inventory> \
-  --extra-vars "enable_auto_activation=true aws_ssm_agent_install_directory=/var/ssm"
+  --extra-vars "auto_activation=enabled aws_ssm_agent_install_directory=/var/ssm"
 ```
 
 > ⚠️ Only specify this variable if you are deploying on hosts that do not have any supported package manager available.
@@ -129,10 +127,11 @@ Variable                  |                       Description                   
 ------------------------- | -------------------------------------------------------- | ---------------
 **aws_ssm_activation_code** | Defines an AWS SSM activation code to provide to the playbook when provisioning your instances. **Required if you don't enable auto-activation.** | `a1b2c3d4e5f6g7h8i1j2` |
 **aws_ssm_activation_id** | Defines an AWS SSM activation identifier to provide to the playbook when provisioning your instances. **Required if you don't enable auto-activation.** | `62275ac1-276f-47f0-9309-ef382c710b25` |
+**aws_ssm_ec2_region** | Sets the AWS region to use. | `us-east-1` |
 **auto_activation** | Enables or disables automatic creation of an activation code for your instances using the AWS CLI. | `enabled` or `disabled` |
+**aws_ssm_iam_role** | The Amazon Identity and Access Management (IAM) role name that  you  want to  assign  to  the  managed  instance.  This  IAM role must provide AssumeRole permissions for the  Systems  Manager  service  principal ssm.amazonaws.com  . For more information, see Create an IAM service role for a hybrid environment in the AWS Systems Manager User Guide (if not provided, will be automatically created). **Only valid when auto-activation** is enabled. | `AWSSSMInstanceRole`
 **instance_tags** | Defines a JSON array of tags to associate with AWS SSM activations created by this playbook. **Only valid when auto-activation** is enabled. | `Key=foo,Value=bar Key=bar,Value=baz` |
 **aws_ssm_agent_install_directory** | Defines the target installation directory for AWS SSM when no package managers are available on your system. | `/var/ssm`
-**aws_ssm_ec2_region** | Sets the AWS region to use. | `us-east-1`
 
 ## 🏷 Playbook Tags
 
