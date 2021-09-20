@@ -130,7 +130,7 @@ Variable                  |                       Description                   
 **aws_ssm_ec2_region** | Sets the AWS region to use. | `us-east-1` |
 **auto_activation** | Enables or disables automatic creation of an activation code for your instances using the AWS CLI. | `enabled` or `disabled` |
 **aws_ssm_iam_role** | The Amazon Identity and Access Management (IAM) role name that  you  want to  assign  to  the  managed  instance.  This  IAM role must provide AssumeRole permissions for the  Systems  Manager  service  principal ssm.amazonaws.com  . For more information, see Create an IAM service role for a hybrid environment in the AWS Systems Manager User Guide (if not provided, will be automatically created). **Only valid when auto-activation** is enabled. | `AWSSSMInstanceRole`
-**instance_tags** | Defines a JSON array of tags to associate with AWS SSM activations created by this playbook. **Only valid when auto-activation** is enabled. | `Key=foo,Value=bar Key=bar,Value=baz` |
+**instance_tags** | Defines tags to associate with AWS SSM activations created by this playbook. **Only valid when auto-activation** is enabled. | `Key=foo,Value=bar Key=bar,Value=baz` |
 **aws_ssm_agent_install_directory** | Defines the target installation directory for AWS SSM when no package managers are available on your system. | `/var/ssm`
 
 ## 🏷 Playbook Tags
@@ -150,17 +150,15 @@ Below is a matrix of the operating systems, architectures that have been tested 
 OS                                   | Architecture | Compatible         |
 ------------------------------------ | ------------ | ------------------ |
  **Ubuntu 20.04**                    |    x86_64    | :white_check_mark: |
- **Ubuntu 18.04**                    |    x86_64    | :white_check_mark: |
- **Ubuntu 18.04**                    |    arm64     | :white_check_mark: |
+ **Ubuntu 18.04**                    |    x86_64 and arm64    | :white_check_mark: |
+**Ubuntu Server 14.04 LTS**          |    x86_64    | :white_check_mark: |
+ **Ubuntu Server 16.04 LTS**         |    x86_64    | :white_check_mark: |
  **MacOS Big Sur**                   |    x86_64    | :white_check_mark: |
  **Amazon Linux**                    |    x86_64    | :white_check_mark: |
  **Amazon Linux 2**                  |    x86_64    | :white_check_mark: |
  **SUSE Linux Enterprise Server 15** |    x86_64    | :white_check_mark: |
  **OpenSUSE Leap 42.1**              |    x86_64    | :white_check_mark: |
- **Red Hat Enterprise Linux**        |    x86_64    | :white_check_mark: |
- **Red Hat Enterprise Linux**        |    arm64     | :white_check_mark: |
- **Ubuntu Server 14.04 LTS**         |    x86_64    | :white_check_mark: |
- **Ubuntu Server 16.04 LTS**         |    x86_64    | :white_check_mark: |
+ **Red Hat Enterprise Linux**        |    x86_64 and arm64    | :white_check_mark: |
  **Debian Stretch**                  |    x86_64    | :white_check_mark: |
  **CentOS**                          |    x86_64    | :white_check_mark: |
  **Fedora**                          |    x86_64    | :white_check_mark: |
