@@ -14,14 +14,14 @@
   become: false
   delegate_to: localhost
   run_once: true
-  when: aws_ssm_ec2_region == ""
+  when: aws_ssm_ec2_region
 
 # Setting the AWS region as fact.
 - name: Saving the current AWS region
   set_fact:
     aws_ssm_ec2_region: "{{ aws_current_region.stdout }}"
   run_once: true
-  when: aws_ssm_ec2_region == ""
+  when: aws_ssm_ec2_region
 
 # Displaying the resolved AWS Region.
 - name: Displaying the resolved AWS Region.
