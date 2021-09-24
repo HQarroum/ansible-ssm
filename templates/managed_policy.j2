@@ -5,12 +5,12 @@
       "Effect": "Allow",
       "Action": "s3:GetObject",
       "Resource": [
-        "arn:aws:s3:::aws-ssm-{{ aws_current_region.stdout }}/*",
-        "arn:aws:s3:::aws-windows-downloads-{{ aws_current_region.stdout }}/*",
-        "arn:aws:s3:::amazon-ssm-{{ aws_current_region.stdout }}/*",
-        "arn:aws:s3:::amazon-ssm-packages-{{ aws_current_region.stdout }}/*",
-        "arn:aws:s3:::{{ aws_current_region.stdout }}-birdwatcher-prod/*",
-        "arn:aws:s3:::patch-baseline-snapshot-{{ aws_current_region.stdout }}/*"
+        "arn:aws:s3:::aws-ssm-{{ aws_ssm_ec2_region }}/*",
+        "arn:aws:s3:::aws-windows-downloads-{{ aws_ssm_ec2_region }}/*",
+        "arn:aws:s3:::amazon-ssm-{{ aws_ssm_ec2_region }}/*",
+        "arn:aws:s3:::amazon-ssm-packages-{{ aws_ssm_ec2_region }}/*",
+        "arn:aws:s3:::{{ aws_ssm_ec2_region }}-birdwatcher-prod/*",
+        "arn:aws:s3:::patch-baseline-snapshot-{{ aws_ssm_ec2_region }}/*"
       ]
     }
   ]

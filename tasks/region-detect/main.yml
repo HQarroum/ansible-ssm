@@ -1,0 +1,30 @@
+---
+
+# Detecting the current AWS Region using environment variable.
+- name: Detecting the current AWS Region using `AWS_DEFAULT_REGION`
+  set_fact:
+    aws_ssm_ec2_region: "{{ lookup('env', 'AWS_DEFAULT_REGION') }}"
+  run_once: true
+
+# Computing the current AWS region using the AWS CLI.
+- name: Computing the current AWS region using the AWS CLI.
+  command: >
+    aws configure get region
+  register: aws_current_region
+  become: false
+  delegate_to: localhost
+  run_once: true
+  when: aws_ssm_ec2_region == ""
+
+# Setting the AWS region as fact.
+- name: Saving the current AWS region
+  set_fact:
+    aws_ssm_ec2_region: "{{ aws_current_region.stdout }}"
+  run_once: true
+  when: aws_ssm_ec2_region == ""
+
+# Displaying the resolved AWS Region.
+- name: Displaying the resolved AWS Region.
+  debug:
+    msg: "The current AWS Region is {{ aws_ssm_ec2_region }}."
+  run_once: true

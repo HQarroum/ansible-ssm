@@ -20,13 +20,13 @@
   set_fact:
     stat_result: "{{ stat_result_windows.stat | default(stat_result_linux.stat) }}"
 
-# If auto-activation is enabled, we create a new activation
-# using the AWS CLI.
+# If auto-activation is enabled, and no activation currently exists
+# we create a new activation using the AWS API.
 - name: Create a new activation
   include_tasks: create-activation.yml
   when: not stat_result.exists and auto_activation == "enabled"
 
-# Register the instance.
+# Register the instance on the AWS SSM service.
 - name: Register the instance
   include_tasks: agent-registration.yml
   when: not stat_result.exists

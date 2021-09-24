@@ -1,20 +1,16 @@
 ---
 
-# Verifies that the AWS CLI is installed and configured,
-# and retrieves the current AWS region.
-- name: Get AWS CLI current region
-  command: >
-    aws configure get region
-  become: false
-  delegate_to: localhost
-  register: aws_current_region
-  changed_when: false
-  when: aws_ssm_ec2_region is not defined
+# Verifying whether the activation code and activation id have been provided.
+- name: Verify whether the activation code and activation id have been provided.
+  fail:
+    msg: >
+      The SSM activation code or SSM activation id were provided when auto_activation
+      is set as enabled. These two parameters are conflictual, please review the provided
+      Ansible parameters to ensure that you select the manual or automatic activation.
+  when: "aws_ssm_activation_code is defined or aws_ssm_activation_id is defined"
 
-# Setting the AWS region as fact.
-- name: Set the current AWS region
-  set_fact:
-    aws_ssm_ec2_region: "{{ aws_current_region.stdout }}"
+# Detecting the current AWS Region to use.
+- include: region-detect/main.yml
   when: aws_ssm_ec2_region is not defined
 
 # Creating a new IAM Managed policy to be attached to
@@ -75,11 +71,9 @@
   become: false
   delegate_to: localhost
   register: aws_activation_parameters
-  when: (aws_ssm_activation_code is not defined or aws_ssm_activation_id is not defined)
 
 # Setting the AWS activation parameters as fact.
 - name: Sets the AWS activation parameters as fact
   set_fact:
     aws_ssm_activation_code: "{{ aws_activation_parameters.stdout | from_json | json_query('ActivationCode') }}"
     aws_ssm_activation_id: "{{ aws_activation_parameters.stdout | from_json | json_query('ActivationId') }}"
-  when: (aws_ssm_activation_code is not defined or aws_ssm_activation_id is not defined)
