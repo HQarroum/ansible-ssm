@@ -9,9 +9,10 @@ architecture_map:
     value: amd64
   '64-bit':
     value: amd64
+  '64 bits':
+    value: amd64
 
 # Installation variables.
-temp_directory: 'c:\windows\temp\'
 aws_ssm_download_directory: 'c:\windows\temp\AmazonSSMAgentSetup.exe'
 aws_ssm_installer_arguments: '/install /quiet /norestart'
 aws_ssm_path: 'C:\Program Files\Amazon\SSM\amazon-ssm-agent.exe'

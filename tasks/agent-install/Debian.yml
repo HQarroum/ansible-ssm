@@ -11,6 +11,7 @@
   apt:
     deb: https://s3.amazonaws.com/ec2-downloads-windows/SSMAgent/latest/debian_{{ arch_name }}/amazon-ssm-agent.deb
     state: present
+  become: true
   when: not snap_available.stat.exists
 
 # Installs the AWS SSM Agent using Snapd.
@@ -19,6 +20,7 @@
     name: "{{ aws_ssm_snap_name }}"
     classic: true
     state: present
+  become: true
   when: snap_available.stat.exists
 
 # Setting the created AWS role for Ansible managed instances.
@@ -34,5 +36,6 @@
     name: "{{ aws_ssm_agent_service_name }}"
     enabled: true
     state: started
+  become: true
   tags:
     - register-service

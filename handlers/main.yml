@@ -5,6 +5,8 @@
   systemd:
     daemon_reload: true
   listen: reload
+  tags:
+    - register-service
 
 # Restarts SSM Agent (Windows).
 - name: Restart SSM Agent (Windows)
@@ -13,6 +15,8 @@
     state: restarted
   listen: restart
   when: ansible_os_family == 'Windows'
+  tags:
+    - register-service
 
 # Restarts SSM Agent (Darwin).
 - name: Restart SSM Agent (Darwin)
@@ -20,7 +24,9 @@
     name: "{{ aws_ssm_agent_service_name }}"
     state: restarted
   listen: restart
-  when: ansible_system == "Darwin"
+  when: ansible_system == 'Darwin'
+  tags:
+    - register-service
 
 # Restarts SSM Agent (Linux).
 - name: Restart SSM Agent (Linux)
@@ -29,4 +35,6 @@
     state: restarted
   listen: restart
   become: true
-  when: ansible_system == "Linux"
+  when: ansible_system == 'Linux'
+  tags:
+    - register-service
